@@ -33,4 +33,27 @@ $ pig -x local -f pregunta.pig
 
         >>> Escriba su respuesta a partir de este punto <<<
 */
+ata = LOAD './data.csv' using PigStorage(',') AS (id:int, name:chararray, lastName:chararray, birthday:chararray, color:chararray, lvl:int);
 
+changeData = FOREACH data GENERATE birthday,  ToString(ToDate(birthday,'yyyy-MM-dd',
+    'America/Bogota'),'dd'), ToString(ToDate(birthday,'yyyy-MM-dd',
+    'America/Bogota'),'d'), ToString(ToDate(birthday,'yyyy-MM-dd',
+    'America/Bogota'),'EEEE');
+
+cangeMonday = FOREACH changeData GENERATE $0, REPLACE($3,'Monday','lunes'), $1, $2;
+
+changeTuesday = FOREACH cangeMonday GENERATE $0, REPLACE($1,'Tuesday','martes'), $2, $3;
+
+changeWednesday = FOREACH changeTuesday GENERATE $0, REPLACE($1,'Wednesday','miercoles'), $2, $3;
+
+changeThursday = FOREACH changeWednesday GENERATE $0, REPLACE($1,'Thursday','jueves'), $2, $3;
+
+changeFriday = FOREACH changeThursday GENERATE $0, REPLACE($1,'Friday','viernes'), $2, $3;
+
+changeSaturday = FOREACH changeFriday GENERATE $0, REPLACE($1,'Saturday','sabado'), $2, $3;
+
+changeSunday = FOREACH changeSaturday GENERATE $0, REPLACE($1,'Sunday','domingo'), $2, $3;
+
+result = FOREACH changeSunday  GENERATE $0,$2,$3, SUBSTRING($1, 0, 3),$1;
+
+STORE result  INTO 'output' USING PigStorage(',');
