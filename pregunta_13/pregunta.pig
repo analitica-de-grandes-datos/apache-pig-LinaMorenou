@@ -22,10 +22,14 @@ $ pig -x local -f pregunta.pig
         /* >>> Escriba su respuesta a partir de este punto <<< */
 */
 
-data = LOAD './data.csv' using PigStorage(',') AS (id:int, name:chararray, lastName:chararray, data:chararray, color:chararray, lvl:int);
+-- Cargar el archivo 'data.csv' utilizando PigStorage y especificar el esquema de columnas
+data = LOAD 'data.csv' USING PigStorage(',') AS (ColId:INT, UserName:chararray, UserLastName:chararray, date:chararray, color:chararray, number:INT);
 
-select = FOREACH data GENERATE color;
+-- Filtrar los registros donde el color comienza con 'b' utilizando REGEX_EXTRACT de Pig
+column = FOREACH data GENERATE REGEX_EXTRACT(color, '([b].*)',1) AS C1;
 
-result =  FILTER select BY color matches '[b].*';
+-- Filtrar los registros que no tienen valor nulo en la columna C1
+filtered_by = FILTER column BY C1 is not null;
 
-STORE result INTO 'output/' using PigStorage(',');
+-- Almacenar el resultado en la carpeta 'output' utilizando PigStorage
+STORE filtered_by INTO 'output' USING PigStorage(',');
