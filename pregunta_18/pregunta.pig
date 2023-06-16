@@ -20,10 +20,16 @@ $ pig -x local -f pregunta.pig
 
         /* >>> Escriba su respuesta a partir de este punto <<< */
 */
-data = LOAD './data.csv' using PigStorage(',') AS (id:int, name:chararray, lastName:chararray, date:chararray, color:chararray, lvl:int);
+-- Cargar el archivo 'data.csv' utilizando PigStorage y especificar el esquema de columnas
+data = LOAD 'data.csv' USING PigStorage(',') AS (ColId:INT, UserName:chararray, UserLastName:chararray, date:chararray, color:chararray, number:INT);
 
-select = FOREACH data GENERATE name, color;
+-- Proyectar el UserName y el color en la variable column
+column = FOREACH data GENERATE UserName, color;
 
-result = FILTER select BY NOT (color  MATCHES '.*b.*');
+-- Filtrar los registros donde el color no es 'blue' ni 'black'
+filtered_by = FILTER column BY NOT color IN ('blue', 'black');
 
-STORE result INTO 'output/' using PigStorage(',') ;
+-- Guardar el resultado en la carpeta 'output' utilizando PigStorage con ',' como delimitador
+STORE filtered_by INTO 'output' USING PigStorage(',');
+
+-- Fin del script
