@@ -20,10 +20,17 @@ $ pig -x local -f pregunta.pig
 
         /* >>> Escriba su respuesta a partir de este punto <<< */
 */
-data = LOAD './data.csv' using PigStorage(',') AS (id:int, name:chararray, lastName:chararray, date:chararray, color:chararray, lvl:int);
 
-select = FILTER data BY (name matches 'K.*') or (color matches 'blue');
+-- Cargar el archivo 'data.csv' utilizando PigStorage y especificar el esquema de columnas
+data = LOAD 'data.csv' USING PigStorage(',') AS (ColId:INT, UserName:chararray, UserLastName:chararray, date:chararray, color:chararray, number:INT);
 
-result = FOREACH select GENERATE name, color;
+-- Proyectar el UserName y el color en la variable column
+column = FOREACH data GENERATE UserName, color;
 
-STORE result INTO 'output/' using PigStorage(',');
+-- Filtrar los registros donde el color es 'blue' o el UserName comienza con 'K' (mayúscula o minúscula)
+filtered_by = FILTER column BY color == 'blue' OR (UserName MATCHES '.*^[kK].*');
+
+-- Guardar el resultado en la carpeta 'output' utilizando PigStorage con espacio como delimitador
+STORE filtered_by INTO 'output' USING PigStorage(',');
+
+-- Fin del script
