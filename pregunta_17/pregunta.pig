@@ -19,10 +19,16 @@ $ pig -x local -f pregunta.pig
 
         /* >>> Escriba su respuesta a partir de este punto <<< */
 */
-data = LOAD './data.csv' using PigStorage(',') AS (id:int, name:chararray, lastName:chararray, date:chararray, color:chararray, lvl:int);
+-- Cargar el archivo 'data.csv' utilizando PigStorage y especificar el esquema de columnas
+data = LOAD 'data.csv' USING PigStorage(',') AS (ColId:INT, UserName:chararray, UserLastName:chararray, date:chararray, color:chararray, number:INT);
 
-select = FILTER data BY (color matches 'blue') or (color matches 'black');
+-- Proyectar el UserName y el color en la variable column
+column = FOREACH data GENERATE UserName, color;
 
-result = FOREACH select GENERATE name, color;
+-- Filtrar los registros donde el color es 'blue' o 'black'
+filtered_by = FILTER column BY color IN ('blue', 'black');
 
-STORE result INTO 'output/' using PigStorage(',');
+-- Guardar el resultado en la carpeta 'output' utilizando PigStorage con ',' como delimitador
+STORE filtered_by INTO 'output' USING PigStorage(',');
+
+-- Fin del script
